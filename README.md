@@ -8,21 +8,30 @@ The name combines *kar* (work) and *ban* (keeper/guide). It is used consistently
 
 ## Tech Stack
 
-- **Laravel** (PHP) with Blade views
-- **Tailwind CSS** and the Vazirmatn (Vazir) font, RTL-ready
+- **Laravel** (PHP) with **Blade** views
+- **Tailwind CSS v4** (CSS-first `@theme` tokens in `resources/css/app.css`) and **Alpine.js** for lightweight interactivity (modals, dismissible banners)
+- **Vazirmatn** (Vazir) font, full **RTL** layout
 - **Laravel Sanctum** for versioned REST API auth (`/api/v1`)
 - **morilog/jalali** for Jalali (Persian/Shamsi) display dates; Gregorian dates stay in the database
+- **maatwebsite/excel** (Laravel Excel) for periodic report Excel export (RTL worksheet, UTF-8)
+- **spatie/browsershot** (default) + **Puppeteer** for periodic report PDF export (headless Chrome, correct Persian/RTL shaping)
+- **barryvdh/laravel-dompdf** available as an optional PDF fallback via `KARBAAN_PDF_DRIVER=dompdf` (not recommended for Persian text)
 
 ## Features
 
-- Daily work planning: employees open a day and add a checklist of intended tasks
-- Checklist close-out: mark tasks done or not done (reason required when not done) and log extra/unplanned work
-- Time tracking: start/end timestamps and computed hours per day
-- Employee history (“سوابق من”): previous days, Jalali date filter, and day-detail modal
-- Manager reports: team summary and per-employee periodic reports (today / this week / this month / custom Jalali range)
-- Role-based access: Employee, Manager, Admin (policies; employees only see their own plans)
-- Jalali calendar in the panel: Persian day/month names, Jalali date-picker on range filters
-- REST API alongside the Blade UI for future mobile or integrations
+- **Daily task planning** — employees open a day and create a start-of-day checklist
+- **End-of-day closing** — mark planned tasks done or not done (reason required when not done), log extra/unplanned tasks, record hours
+- **Time tracking** — start/end timestamps and computed hours per day on `daily_plans`
+- **Employee self-history** (“سوابق من”) — date-range filtering, summary KPIs, daily table, and shared day-detail modal
+- **Manager periodic report (per employee)** — summary KPI cards, daily breakdown table, day-detail modal; team-level report at `/reports`
+- **Today's Attendance** (manager/admin dashboard) — real-time view of who has started, is still working, or finished today, with start/end times and task progress; row click opens day-detail modal
+- **Jalali (Persian/Shamsi) calendar** throughout the panel, with a Jalali date-picker on report/history filters
+- **Excel export** of manager employee periodic reports (`/reports/employee/export/excel`) — RTL-formatted, Persian-safe `.xlsx`
+- **PDF export** of the same reports (`/reports/employee/export/pdf`) — RTL-formatted, Persian-safe; rendered via **Browsershot** by default
+- **In-panel end-of-day reminder** — configurable time (`KARBAAN_END_OF_DAY_REMINDER_TIME`, default `18:00`) banner for employees who started but have not closed their day (no email/push)
+- **Role-based access** — Employee, Manager, Admin (policies; employees only see their own plans)
+- **REST API** (`/api/v1`) with Sanctum authentication for future mobile or integrations
+- **Modern minimal UI** — Tailwind design system (brand colors, typography, spacing), reusable Blade UI components (`x-ui.*`), stat cards, status badges, polished forms and tables
 
 ## Architecture
 
@@ -30,24 +39,38 @@ Request flow:
 
 `Route → thin Controller → Form Request (validation + toDto) → Service (business logic) → Eloquent → API Resource / Blade`
 
+Key folders:
+
+| Layer | Location |
+|-------|----------|
+| Controllers | `app/Http/Controllers/Web`, `app/Http/Controllers/Api/V1` |
+| Form Requests | `app/Http/Requests` |
+| Services | `app/Services/Implementations` (+ interfaces in `Contracts`) |
+| DTOs | `app/DTOs` |
+| Enums | `app/Enums` |
+| Policies | `app/Policies` |
+| Exports | `app/Exports` |
+| UI components | `resources/views/components`, `resources/views/components/ui` |
+
+Conventions:
+
 - Controllers only orchestrate; they do not contain query builders or business rules.
 - Each service is bound behind an interface in `DomainServiceProvider`.
 - Data moves between layers via `readonly` DTOs.
-- Fixed values use PHP enums (`UserRole`, `TaskStatus`, `NotDoneReason`, `ReportPeriod`, `DailyPlanStatus`, `DayHistoryStatus`).
+- Fixed values use PHP enums (`UserRole`, `TaskStatus`, `NotDoneReason`, `ReportPeriod`, `DailyPlanStatus`, `DayHistoryStatus`, `AttendanceStatus`, …).
 - Policies enforce access: employees edit only their own daily plan; managers/admins view team and employee reports; only admins CRUD employees.
 - Closing a day runs in a database transaction (task statuses + attendance hours).
+- Reports are computed on demand by `ReportService` (not stored); screen, Excel, and PDF share the same DTO output.
 
 ### Design decisions
 
 - There is no separate `employees` table; `User` is the employee, with a role on the same model.
 - Attendance lives on `daily_plans` (`started_at`, `closed_at`, `hours_worked`) so one working day has a single source of truth.
-- Reports are not stored; `ReportService` computes them on demand.
 - Jalali conversion for filter inputs happens in Form Requests (`prepareForValidation`); services always receive Gregorian `Carbon` dates.
 
 ### Possible later extensions
 
-- Notifications (remind employees to close the day, or alert managers on low completion)
-- Excel/PDF export for reports
+- Email or push notifications (in-panel reminder exists today)
 - Caching for heavy periodic reports
 - Calendar or payroll integrations
 
@@ -63,7 +86,14 @@ npm run build
 php artisan serve
 ```
 
-`npm run build` needs Node 20.12+ or 22 (Vite 8). On an older Node version, the UI falls back to the Tailwind CDN and Bunny Fonts so the app is still viewable without a frontend build.
+`npm install` pulls **Puppeteer** (used by Browsershot for PDF export). `npm run build` needs Node 20.12+ or 22 (Vite 8). On an older Node version, the UI falls back to the Tailwind CDN and Bunny Fonts so the app is still viewable without a frontend build.
+
+Optional `.env` settings:
+
+```env
+KARBAAN_END_OF_DAY_REMINDER_TIME=18:00
+KARBAAN_PDF_DRIVER=browsershot   # or dompdf (fallback)
+```
 
 ### Demo accounts
 
