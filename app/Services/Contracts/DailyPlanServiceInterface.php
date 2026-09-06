@@ -23,4 +23,6 @@ interface DailyPlanServiceInterface
      * @return Collection<int, DailyPlan>
      */
     public function listFor(User $actor, ?int $userId = null): Collection;
+
+    public function openPlanNeedingEndOfDayReminder(User $user): ?DailyPlan;
 }

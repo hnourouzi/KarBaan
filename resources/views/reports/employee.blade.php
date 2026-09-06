@@ -33,6 +33,21 @@
     </x-card>
 
     @if ($history)
+        <div class="mb-4 flex flex-wrap gap-3">
+            <x-button
+                href="{{ route('reports.employee.export.excel', request()->query()) }}"
+                variant="secondary"
+            >
+                خروجی اکسل
+            </x-button>
+            <x-button
+                href="{{ route('reports.employee.export.pdf', request()->query()) }}"
+                variant="secondary"
+            >
+                خروجی PDF
+            </x-button>
+        </div>
+
         <div class="mb-6">
             <x-history-summary :summary="$history->summary" />
         </div>

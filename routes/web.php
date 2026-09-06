@@ -8,6 +8,7 @@ use App\Http\Controllers\Web\DayReportController;
 use App\Http\Controllers\Web\EmployeeController;
 use App\Http\Controllers\Web\HistoryController;
 use App\Http\Controllers\Web\ManagerEmployeeReportController;
+use App\Http\Controllers\Web\PeriodicReportExportController;
 use App\Http\Controllers\Web\PlanTaskController;
 use App\Http\Controllers\Web\ReportController;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,8 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::middleware('role:manager,admin')->group(function () {
         Route::get('/reports', ReportController::class)->name('reports.index');
         Route::get('/reports/employee', ManagerEmployeeReportController::class)->name('reports.employee');
+        Route::get('/reports/employee/export/excel', [PeriodicReportExportController::class, 'excel'])->name('reports.employee.export.excel');
+        Route::get('/reports/employee/export/pdf', [PeriodicReportExportController::class, 'pdf'])->name('reports.employee.export.pdf');
         Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
     });
 

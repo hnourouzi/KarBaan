@@ -43,6 +43,8 @@
             </div>
         </header>
 
+        <x-end-of-day-reminder />
+
         <main class="mx-auto max-w-6xl px-4 py-8">
             <x-flash />
             {{ $slot }}

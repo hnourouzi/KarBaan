@@ -115,4 +115,25 @@ class DailyPlanService implements DailyPlanServiceInterface
 
         return $query->limit(60)->get();
     }
+
+    public function openPlanNeedingEndOfDayReminder(User $user): ?DailyPlan
+    {
+        if ($user->canManageTeam()) {
+            return null;
+        }
+
+        $reminderTime = (string) config('karbaan.end_of_day_reminder_time', '18:00');
+
+        if (now()->format('H:i') < $reminderTime) {
+            return null;
+        }
+
+        $plan = $this->todayFor($user);
+
+        if ($plan === null || $plan->isClosed()) {
+            return null;
+        }
+
+        return $plan;
+    }
 }
