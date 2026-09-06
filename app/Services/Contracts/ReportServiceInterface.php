@@ -6,7 +6,10 @@ use App\DTOs\Report\DayDetailData;
 use App\DTOs\Report\PeriodHistoryData;
 use App\DTOs\Report\ReportQueryData;
 use App\DTOs\Report\ReportResultData;
+use App\DTOs\Report\TodayAttendanceDTO;
 use App\Models\DailyPlan;
+use Carbon\CarbonInterface;
+use Illuminate\Support\Collection;
 
 interface ReportServiceInterface
 {
@@ -15,4 +18,9 @@ interface ReportServiceInterface
     public function history(ReportQueryData $query): PeriodHistoryData;
 
     public function dayDetail(DailyPlan $plan): DayDetailData;
+
+    /**
+     * @return Collection<int, TodayAttendanceDTO>
+     */
+    public function getTodayAttendanceOverview(?CarbonInterface $date = null): Collection;
 }

@@ -28,6 +28,7 @@ class DashboardController extends Controller
 
             return view('dashboard.manager', [
                 'report' => $report,
+                'todayAttendance' => $reports->getTodayAttendanceOverview(),
             ]);
         }
 

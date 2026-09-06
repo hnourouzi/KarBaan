@@ -9,14 +9,18 @@ use App\DTOs\Report\PeriodHistoryData;
 use App\DTOs\Report\ReasonBreakdown;
 use App\DTOs\Report\ReportQueryData;
 use App\DTOs\Report\ReportResultData;
+use App\DTOs\Report\TodayAttendanceDTO;
+use App\Enums\AttendanceStatus;
 use App\Enums\DailyPlanStatus;
 use App\Enums\DayHistoryStatus;
 use App\Enums\NotDoneReason;
 use App\Enums\TaskStatus;
+use App\Enums\UserRole;
 use App\Models\DailyPlan;
 use App\Models\PlanTask;
 use App\Models\User;
 use App\Services\Contracts\ReportServiceInterface;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
@@ -91,6 +95,30 @@ class ReportService implements ReportServiceInterface
         );
     }
 
+    public function getTodayAttendanceOverview(?CarbonInterface $date = null): Collection
+    {
+        $date = Carbon::parse($date ?? now())->startOfDay();
+        $dateString = $date->toDateString();
+
+        $employees = User::query()
+            ->active()
+            ->where('role', UserRole::Employee)
+            ->orderBy('name')
+            ->orderBy('id')
+            ->get();
+
+        $plans = DailyPlan::query()
+            ->with('tasks')
+            ->forDate($dateString)
+            ->whereIn('user_id', $employees->pluck('id'))
+            ->get()
+            ->keyBy('user_id');
+
+        return $employees->map(
+            fn (User $employee) => $this->todayAttendanceRow($employee, $plans->get($employee->id)),
+        );
+    }
+
     /**
      * @return Collection<int, DailyPlan>
      */
@@ -148,6 +176,35 @@ class ReportService implements ReportServiceInterface
             hoursWorked: round((float) $days->sum('hoursWorked'), 2),
             closedDays: $days->where('status', DayHistoryStatus::Closed)->count(),
             reasons: $this->reasonBreakdown($plans->flatMap->tasks->where('is_extra', false)),
+        );
+    }
+
+    private function todayAttendanceRow(User $employee, ?DailyPlan $plan): TodayAttendanceDTO
+    {
+        if ($plan === null) {
+            return new TodayAttendanceDTO(
+                userId: $employee->id,
+                userName: $employee->name,
+                status: AttendanceStatus::NotStarted,
+                startedAt: null,
+                closedAt: null,
+                plannedCount: 0,
+                doneCount: 0,
+                dailyPlanId: null,
+            );
+        }
+
+        $counts = $this->taskCounts($plan->tasks);
+
+        return new TodayAttendanceDTO(
+            userId: $employee->id,
+            userName: $employee->name,
+            status: $plan->isClosed() ? AttendanceStatus::Finished : AttendanceStatus::Started,
+            startedAt: $plan->started_at,
+            closedAt: $plan->closed_at,
+            plannedCount: $counts['planned'],
+            doneCount: $counts['done'],
+            dailyPlanId: $plan->id,
         );
     }
 
