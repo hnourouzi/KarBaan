@@ -1,48 +1,50 @@
 @props(['days'])
 
-<div class="overflow-x-auto">
-    <table class="w-full min-w-[720px] text-right text-sm">
-        <thead class="border-b border-stone-200 text-stone-500">
+<div class="kb-table-wrap">
+    <table class="kb-table min-w-[720px]">
+        <thead>
             <tr>
-                <th class="py-2 font-medium">تاریخ</th>
-                <th class="py-2 font-medium">روز</th>
-                <th class="py-2 font-medium">ساعات</th>
-                <th class="py-2 font-medium">برنامه</th>
-                <th class="py-2 font-medium">انجام‌شده</th>
-                <th class="py-2 font-medium">انجام‌نشده</th>
-                <th class="py-2 font-medium">اضافه</th>
-                <th class="py-2 font-medium">وضعیت</th>
-                <th class="py-2 font-medium"></th>
+                <th>تاریخ</th>
+                <th>روز</th>
+                <th>ساعات</th>
+                <th>برنامه</th>
+                <th>انجام‌شده</th>
+                <th>انجام‌نشده</th>
+                <th>اضافه</th>
+                <th>وضعیت</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             @forelse ($days as $day)
-                <tr class="border-b border-stone-100">
-                    <td class="py-3"><x-jalali-date :date="$day->date" /></td>
-                    <td class="py-3"><x-jalali-date :date="$day->date" format="day" /></td>
-                    <td class="py-3">{{ $day->hoursWorked }}</td>
-                    <td class="py-3">{{ $day->plannedCount }}</td>
-                    <td class="py-3">{{ $day->doneCount }}</td>
-                    <td class="py-3">{{ $day->notDoneCount }}</td>
-                    <td class="py-3">{{ $day->extraCount }}</td>
-                    <td class="py-3"><x-day-status-badge :status="$day->status" /></td>
-                    <td class="py-3">
+                <tr>
+                    <td class="font-medium text-slate-900"><x-jalali-date :date="$day->date" /></td>
+                    <td><x-jalali-date :date="$day->date" format="day" /></td>
+                    <td>{{ $day->hoursWorked }}</td>
+                    <td>{{ $day->plannedCount }}</td>
+                    <td>{{ $day->doneCount }}</td>
+                    <td>{{ $day->notDoneCount }}</td>
+                    <td>{{ $day->extraCount }}</td>
+                    <td><x-day-status-badge :status="$day->status" /></td>
+                    <td>
                         @if ($day->planId)
-                            <button
-                                type="button"
-                                data-open-day="{{ $day->planId }}"
-                                class="inline-flex items-center justify-center rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-800 hover:bg-stone-50"
-                            >
+                            <x-button type="button" data-open-day="{{ $day->planId }}" variant="secondary" size="sm">
                                 مشاهده کارها
-                            </button>
+                            </x-button>
                         @else
-                            <span class="text-xs text-stone-400">—</span>
+                            <span class="text-xs text-slate-400">—</span>
                         @endif
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" class="py-4 text-stone-500">در این بازه روزی ثبت نشده است.</td>
+                    <td colspan="9">
+                        <x-ui.empty-state
+                            icon="calendar"
+                            title="در این بازه روزی ثبت نشده است"
+                            description="بازه زمانی دیگری را انتخاب کنید یا پس از ثبت برنامه روزانه دوباره بررسی کنید."
+                        />
+                    </td>
                 </tr>
             @endforelse
         </tbody>

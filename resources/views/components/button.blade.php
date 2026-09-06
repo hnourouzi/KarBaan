@@ -2,22 +2,32 @@
     'type' => 'submit',
     'variant' => 'primary',
     'href' => null,
+    'size' => 'md',
 ])
 
 @php
-    $classes = match ($variant) {
-        'secondary' => 'border border-stone-300 bg-white text-stone-800 hover:bg-stone-50',
-        'danger' => 'border border-red-800 bg-red-800 text-white hover:bg-red-900',
-        default => 'border border-stone-800 bg-stone-800 text-white hover:bg-stone-900',
+    $sizeClasses = match ($size) {
+        'sm' => 'px-3 py-1.5 text-xs',
+        'lg' => 'px-5 py-2.5 text-base',
+        default => 'px-4 py-2 text-sm',
     };
+
+    $classes = match ($variant) {
+        'secondary' => 'border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50',
+        'ghost' => 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+        'danger' => 'border border-rose-700 bg-rose-600 text-white shadow-sm hover:bg-rose-700',
+        default => 'border border-brand-700 bg-brand-600 text-white shadow-sm hover:bg-brand-700',
+    };
+
+    $base = "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 {$sizeClasses} {$classes}";
 @endphp
 
 @if ($href)
-    <a href="{{ $href }}" {{ $attributes->merge(['class' => "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium {$classes}"]) }}>
+    <a href="{{ $href }}" {{ $attributes->merge(['class' => $base]) }}>
         {{ $slot }}
     </a>
 @else
-    <button type="{{ $type }}" {{ $attributes->merge(['class' => "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium {$classes}"]) }}>
+    <button type="{{ $type }}" {{ $attributes->merge(['class' => $base]) }}>
         {{ $slot }}
     </button>
 @endif

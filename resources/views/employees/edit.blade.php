@@ -1,7 +1,5 @@
 <x-layouts.app title="ویرایش کارمند | کاربان">
-    <div class="mb-6">
-        <h1 class="text-xl font-semibold text-stone-900">ویرایش {{ $employee->name }}</h1>
-    </div>
+    <x-ui.page-header :title="'ویرایش '.$employee->name" description="به‌روزرسانی اطلاعات حساب کاربری" />
 
     <x-card class="max-w-xl">
         <form method="POST" action="{{ route('employees.update', $employee) }}" class="space-y-4">
@@ -16,19 +14,19 @@
                     <option value="{{ $role->value }}" @selected(old('role', $employee->role->value) === $role->value)>{{ $role->label() }}</option>
                 @endforeach
             </x-select>
-            <label class="flex items-center gap-2 text-sm text-stone-600">
+            <label class="flex items-center gap-2 text-sm text-slate-600">
                 <input type="hidden" name="is_active" value="0">
-                <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $employee->is_active)) class="rounded border-stone-300">
+                <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $employee->is_active)) class="rounded border-slate-300 text-brand-600 focus:ring-brand-500/20">
                 حساب فعال باشد
             </label>
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2 border-t border-slate-100 pt-5">
                 <x-button>ذخیره</x-button>
                 <x-button href="{{ route('employees.index') }}" variant="secondary">انصراف</x-button>
             </div>
         </form>
 
         @can('delete', $employee)
-            <form method="POST" action="{{ route('employees.destroy', $employee) }}" class="mt-6 border-t border-stone-200 pt-4" onsubmit="return confirm('حذف این کاربر قطعی است؟')">
+            <form method="POST" action="{{ route('employees.destroy', $employee) }}" class="mt-6 border-t border-slate-100 pt-5" onsubmit="return confirm('حذف این کاربر قطعی است؟')">
                 @csrf
                 @method('DELETE')
                 <x-button variant="danger">حذف کارمند</x-button>

@@ -9,16 +9,16 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @else
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-        <style type="text/tailwindcss">
-            @theme {
-                --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;
-            }
-        </style>
+        <link rel="stylesheet" href="{{ asset('css/fallback-theme.css') }}">
     @endif
 </head>
-<body class="min-h-screen font-sans">
-    <div class="flex min-h-screen items-center justify-center px-4">
+<body class="min-h-screen bg-surface-muted font-sans antialiased">
+    <div class="flex min-h-screen items-center justify-center px-4 py-12">
         <div class="w-full max-w-md">
+            <div class="mb-8 text-center">
+                <span class="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-600 text-lg font-bold text-white shadow-sm">ک</span>
+                <p class="text-sm text-slate-500">سامانه ثبت برنامه روزانه کارکنان</p>
+            </div>
             {{ $slot }}
         </div>
     </div>

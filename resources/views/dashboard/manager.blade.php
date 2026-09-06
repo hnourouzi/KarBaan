@@ -1,58 +1,53 @@
 <x-layouts.app title="داشبورد مدیریت | کاربان">
-    <div class="mb-6">
-        <h1 class="text-xl font-semibold text-stone-900">نمای مدیریتی</h1>
-        <p class="text-sm text-stone-500">خلاصه عملکرد هفته جاری</p>
-    </div>
+    <x-ui.page-header title="نمای مدیریتی" description="خلاصه عملکرد هفته جاری" />
 
-    <x-card class="mb-6" title="حضور امروز">
-        <p class="-mt-2 mb-4 text-sm text-stone-500">
+    <x-card class="mb-8" title="حضور امروز">
+        <p class="-mt-1 mb-5 flex items-center gap-2 text-sm text-slate-500">
+            <x-ui.icon name="calendar" class="h-4 w-4" />
             <x-jalali-date :date="now()" format="full" />
         </p>
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[720px] text-right text-sm">
-                <thead class="border-b border-stone-200 text-stone-500">
+        <div class="kb-table-wrap">
+            <table class="kb-table min-w-[720px]">
+                <thead>
                     <tr>
-                        <th class="py-2 font-medium">کارمند</th>
-                        <th class="py-2 font-medium">وضعیت</th>
-                        <th class="py-2 font-medium">شروع</th>
-                        <th class="py-2 font-medium">پایان</th>
-                        <th class="py-2 font-medium">وظایف امروز</th>
+                        <th>کارمند</th>
+                        <th>وضعیت</th>
+                        <th>شروع</th>
+                        <th>پایان</th>
+                        <th>وظایف امروز</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($todayAttendance as $row)
                         <tr
                             @class([
-                                'border-b border-stone-100',
-                                'cursor-pointer hover:bg-stone-50' => $row->dailyPlanId,
-                                'text-stone-400' => ! $row->dailyPlanId,
+                                'cursor-pointer' => $row->dailyPlanId,
+                                'opacity-60' => ! $row->dailyPlanId,
                             ])
                             @if ($row->dailyPlanId)
                                 data-open-day="{{ $row->dailyPlanId }}"
                                 title="مشاهده جزئیات وظایف امروز"
                             @endif
                         >
-                            <td class="py-3">{{ $row->userName }}</td>
-                            <td class="py-3">
-                                <x-attendance-status-badge :status="$row->status" />
-                            </td>
-                            <td class="py-3">
+                            <td class="font-medium text-slate-900">{{ $row->userName }}</td>
+                            <td><x-attendance-status-badge :status="$row->status" /></td>
+                            <td>
                                 @if ($row->startedAt)
                                     <x-jalali-date :date="$row->startedAt" format="time" />
                                 @else
                                     —
                                 @endif
                             </td>
-                            <td class="py-3">
+                            <td>
                                 @if ($row->closedAt)
                                     <x-jalali-date :date="$row->closedAt" format="time" />
                                 @elseif ($row->dailyPlanId)
-                                    <span class="text-stone-400">هنوز ثبت نشده</span>
+                                    <span class="text-slate-400">هنوز ثبت نشده</span>
                                 @else
                                     —
                                 @endif
                             </td>
-                            <td class="py-3 text-stone-500">
+                            <td class="text-slate-500">
                                 @if ($row->dailyPlanId)
                                     {{ $row->doneCount }} / {{ $row->plannedCount }} انجام‌شده
                                 @else
@@ -62,7 +57,9 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-4 text-stone-500">کارمندی برای نمایش ثبت نشده است.</td>
+                            <td colspan="5">
+                                <x-ui.empty-state icon="users" title="کارمندی برای نمایش ثبت نشده است" />
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -70,55 +67,45 @@
         </div>
     </x-card>
 
-    <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <x-card>
-            <p class="text-xs text-stone-500">نرخ تکمیل</p>
-            <p class="mt-2 text-2xl font-semibold">{{ $report->completionRate }}٪</p>
-        </x-card>
-        <x-card>
-            <p class="text-xs text-stone-500">ساعت کارکرد</p>
-            <p class="mt-2 text-2xl font-semibold">{{ $report->hoursWorked }}</p>
-        </x-card>
-        <x-card>
-            <p class="text-xs text-stone-500">انجام‌شده / برنامه‌ریزی‌شده</p>
-            <p class="mt-2 text-2xl font-semibold">{{ $report->doneCount }} / {{ $report->plannedCount }}</p>
-        </x-card>
-        <x-card>
-            <p class="text-xs text-stone-500">وظایف اضافه</p>
-            <p class="mt-2 text-2xl font-semibold">{{ $report->extraCount }}</p>
-        </x-card>
+    <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <x-ui.stat-card label="نرخ تکمیل" :value="$report->completionRate" suffix="٪" icon="chart" />
+        <x-ui.stat-card label="ساعت کارکرد" :value="$report->hoursWorked" icon="clock" />
+        <x-ui.stat-card :value="$report->doneCount.' / '.$report->plannedCount" label="انجام‌شده / برنامه‌ریزی‌شده" icon="clipboard" />
+        <x-ui.stat-card label="وظایف اضافه" :value="$report->extraCount" icon="plus-circle" />
     </div>
 
     <x-card title="عملکرد کارکنان">
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[640px] text-right text-sm">
-                <thead class="border-b border-stone-200 text-stone-500">
+        <div class="kb-table-wrap">
+            <table class="kb-table">
+                <thead>
                     <tr>
-                        <th class="py-2 font-medium">کارمند</th>
-                        <th class="py-2 font-medium">تکمیل</th>
-                        <th class="py-2 font-medium">انجام‌نشده</th>
-                        <th class="py-2 font-medium">اضافه</th>
-                        <th class="py-2 font-medium">ساعات</th>
+                        <th>کارمند</th>
+                        <th>تکمیل</th>
+                        <th>انجام‌نشده</th>
+                        <th>اضافه</th>
+                        <th>ساعات</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($report->employees as $employee)
-                        <tr class="border-b border-stone-100">
-                            <td class="py-3">{{ $employee->userName }}</td>
-                            <td class="py-3">{{ $employee->completionRate }}٪</td>
-                            <td class="py-3">{{ $employee->notDoneCount }}</td>
-                            <td class="py-3">{{ $employee->extraCount }}</td>
-                            <td class="py-3">{{ $employee->hoursWorked }}</td>
+                        <tr>
+                            <td class="font-medium text-slate-900">{{ $employee->userName }}</td>
+                            <td>{{ $employee->completionRate }}٪</td>
+                            <td>{{ $employee->notDoneCount }}</td>
+                            <td>{{ $employee->extraCount }}</td>
+                            <td>{{ $employee->hoursWorked }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-4 text-stone-500">داده‌ای برای این هفته ثبت نشده است.</td>
+                            <td colspan="5">
+                                <x-ui.empty-state icon="chart" title="داده‌ای برای این هفته ثبت نشده است" />
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        <div class="mt-4">
+        <div class="mt-6 flex flex-wrap gap-2 border-t border-slate-100 pt-5">
             <x-button href="{{ route('reports.employee') }}" variant="secondary">گزارش کارمند</x-button>
             <x-button href="{{ route('reports.index') }}" variant="secondary">گزارش تیم</x-button>
         </div>

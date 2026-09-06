@@ -1,15 +1,15 @@
 <x-layouts.app title="ثبت برنامه امروز | کاربان">
-    <div class="mb-6">
-        <h1 class="text-xl font-semibold text-stone-900">ثبت برنامه روزانه</h1>
-        <p class="text-sm text-stone-500">وظایفی را که امروز قصد انجام آن‌ها را دارید وارد کنید.</p>
-    </div>
+    <x-ui.page-header
+        title="ثبت برنامه روزانه"
+        description="وظایفی را که امروز قصد انجام آن‌ها را دارید وارد کنید."
+    />
 
     <x-card class="max-w-2xl">
-        <form method="POST" action="{{ route('daily-plans.store') }}" class="space-y-4">
+        <form method="POST" action="{{ route('daily-plans.store') }}" class="space-y-5">
             @csrf
 
-            <div class="space-y-2" data-task-list>
-                <label class="block text-sm text-stone-700">وظایف برنامه‌ریزی‌شده</label>
+            <div class="space-y-3" data-task-list>
+                <label class="block text-sm font-medium text-slate-700">وظایف برنامه‌ریزی‌شده</label>
                 @foreach (old('titles', ['']) as $title)
                     <input
                         type="text"
@@ -18,25 +18,28 @@
                         required
                         maxlength="255"
                         placeholder="عنوان وظیفه"
-                        class="w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-800 outline-none focus:border-stone-500"
+                        class="kb-input"
                     >
                 @endforeach
             </div>
             @error('titles')
-                <p class="text-xs text-red-700">{{ $message }}</p>
+                <p class="text-xs font-medium text-rose-600">{{ $message }}</p>
             @enderror
             @error('titles.*')
-                <p class="text-xs text-red-700">{{ $message }}</p>
+                <p class="text-xs font-medium text-rose-600">{{ $message }}</p>
             @enderror
 
-            <button type="button" data-add-task class="text-sm text-stone-600 hover:text-stone-900">+ افزودن ردیف</button>
+            <button type="button" data-add-task class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700">
+                <x-ui.icon name="plus-circle" class="h-4 w-4" />
+                افزودن ردیف
+            </button>
 
             <div class="space-y-1.5">
-                <label for="notes" class="block text-sm text-stone-700">یادداشت (اختیاری)</label>
-                <textarea name="notes" id="notes" rows="3" class="w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm outline-none focus:border-stone-500">{{ old('notes') }}</textarea>
+                <label for="notes" class="block text-sm font-medium text-slate-700">یادداشت (اختیاری)</label>
+                <textarea name="notes" id="notes" rows="3" class="kb-input">{{ old('notes') }}</textarea>
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2 border-t border-slate-100 pt-5">
                 <x-button>شروع روز</x-button>
                 <x-button href="{{ route('dashboard') }}" variant="secondary">انصراف</x-button>
             </div>

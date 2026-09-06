@@ -1,11 +1,12 @@
 <x-layouts.app title="گزارش‌ها | کاربان">
-    <div class="mb-6">
-        <h1 class="text-xl font-semibold text-stone-900">گزارش دوره‌ای</h1>
-        <p class="text-sm text-stone-500">از <x-jalali-date :date="$report->from" /> تا <x-jalali-date :date="$report->to" /></p>
-    </div>
+    <x-ui.page-header title="گزارش دوره‌ای">
+        <x-slot>
+            از <x-jalali-date :date="$report->from" /> تا <x-jalali-date :date="$report->to" />
+        </x-slot>
+    </x-ui.page-header>
 
-    <x-card class="mb-6" title="فیلتر">
-        <form method="GET" action="{{ route('reports.index') }}" class="grid gap-3 md:grid-cols-5">
+    <x-card class="mb-8" title="فیلتر گزارش">
+        <form method="GET" action="{{ route('reports.index') }}" class="grid gap-4 md:grid-cols-5">
             <x-select name="period" label="بازه">
                 @foreach (\App\Enums\ReportPeriod::cases() as $period)
                     <option value="{{ $period->value }}" @selected(($filters['period'] ?? 'weekly') === $period->value)>{{ $period->label() }}</option>
@@ -20,46 +21,50 @@
                 @endforeach
             </x-select>
             <div class="flex items-end">
-                <x-button class="w-full">اعمال</x-button>
+                <x-button class="w-full">اعمال فیلتر</x-button>
             </div>
         </form>
     </x-card>
 
-    <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <x-card><p class="text-xs text-stone-500">نرخ تکمیل</p><p class="mt-2 text-2xl font-semibold">{{ $report->completionRate }}٪</p></x-card>
-        <x-card><p class="text-xs text-stone-500">ساعات کار</p><p class="mt-2 text-2xl font-semibold">{{ $report->hoursWorked }}</p></x-card>
-        <x-card><p class="text-xs text-stone-500">انجام‌نشده</p><p class="mt-2 text-2xl font-semibold">{{ $report->notDoneCount }}</p></x-card>
-        <x-card><p class="text-xs text-stone-500">اضافه</p><p class="mt-2 text-2xl font-semibold">{{ $report->extraCount }}</p></x-card>
+    <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <x-ui.stat-card label="نرخ تکمیل" :value="$report->completionRate" suffix="٪" icon="chart" />
+        <x-ui.stat-card label="ساعات کار" :value="$report->hoursWorked" icon="clock" />
+        <x-ui.stat-card label="انجام‌نشده" :value="$report->notDoneCount" icon="x-circle" />
+        <x-ui.stat-card label="اضافه" :value="$report->extraCount" icon="plus-circle" />
     </div>
 
     <div class="grid gap-6 lg:grid-cols-3">
         <x-card class="lg:col-span-2" title="به تفکیک کارمند">
-            <div class="overflow-x-auto">
-                <table class="w-full min-w-[640px] text-right text-sm">
-                    <thead class="border-b border-stone-200 text-stone-500">
+            <div class="kb-table-wrap">
+                <table class="kb-table">
+                    <thead>
                         <tr>
-                            <th class="py-2 font-medium">کارمند</th>
-                            <th class="py-2 font-medium">برنامه</th>
-                            <th class="py-2 font-medium">انجام‌شده</th>
-                            <th class="py-2 font-medium">انجام‌نشده</th>
-                            <th class="py-2 font-medium">اضافه</th>
-                            <th class="py-2 font-medium">نرخ</th>
-                            <th class="py-2 font-medium">ساعات</th>
+                            <th>کارمند</th>
+                            <th>برنامه</th>
+                            <th>انجام‌شده</th>
+                            <th>انجام‌نشده</th>
+                            <th>اضافه</th>
+                            <th>نرخ</th>
+                            <th>ساعات</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($report->employees as $employee)
-                            <tr class="border-b border-stone-100">
-                                <td class="py-3">{{ $employee->userName }}</td>
-                                <td class="py-3">{{ $employee->plannedCount }}</td>
-                                <td class="py-3">{{ $employee->doneCount }}</td>
-                                <td class="py-3">{{ $employee->notDoneCount }}</td>
-                                <td class="py-3">{{ $employee->extraCount }}</td>
-                                <td class="py-3">{{ $employee->completionRate }}٪</td>
-                                <td class="py-3">{{ $employee->hoursWorked }}</td>
+                            <tr>
+                                <td class="font-medium text-slate-900">{{ $employee->userName }}</td>
+                                <td>{{ $employee->plannedCount }}</td>
+                                <td>{{ $employee->doneCount }}</td>
+                                <td>{{ $employee->notDoneCount }}</td>
+                                <td>{{ $employee->extraCount }}</td>
+                                <td>{{ $employee->completionRate }}٪</td>
+                                <td>{{ $employee->hoursWorked }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="7" class="py-4 text-stone-500">داده‌ای در این بازه نیست.</td></tr>
+                            <tr>
+                                <td colspan="7">
+                                    <x-ui.empty-state icon="users" title="داده‌ای در این بازه نیست" />
+                                </td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -69,12 +74,14 @@
         <x-card title="دلایل انجام‌نشدن">
             <ul class="space-y-2 text-sm">
                 @forelse ($report->reasonTotals as $reason)
-                    <li class="flex justify-between border-b border-stone-100 py-2">
-                        <span>{{ $reason->reason->label() }}</span>
-                        <span>{{ $reason->count }}</span>
+                    <li class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2.5">
+                        <span class="text-slate-700">{{ $reason->reason->label() }}</span>
+                        <span class="font-semibold text-slate-900">{{ $reason->count }}</span>
                     </li>
                 @empty
-                    <li class="text-stone-500">موردی ثبت نشده است.</li>
+                    <li>
+                        <x-ui.empty-state icon="inbox" title="موردی ثبت نشده است" />
+                    </li>
                 @endforelse
             </ul>
         </x-card>
