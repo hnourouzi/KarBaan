@@ -56,6 +56,28 @@ class DailyPlan extends Model
         return $this->hasMany(PlanTask::class)->orderBy('position')->orderBy('id');
     }
 
+    /**
+     * @return HasMany<WorkSession, $this>
+     */
+    public function workSessions(): HasMany
+    {
+        return $this->hasMany(WorkSession::class)->orderBy('started_at')->orderBy('id');
+    }
+
+    public function openWorkSession(): ?WorkSession
+    {
+        return $this->workSessions->first(
+            fn (WorkSession $session) => $session->isOpen(),
+        );
+    }
+
+    public function hasClosedWorkSession(): bool
+    {
+        return $this->workSessions->contains(
+            fn (WorkSession $session) => $session->isClosed(),
+        );
+    }
+
     public function isOpen(): bool
     {
         return $this->status === DailyPlanStatus::Open;

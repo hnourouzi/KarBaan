@@ -43,7 +43,7 @@ class DailyPlanController extends Controller
     {
         $this->authorize('view', $dailyPlan);
 
-        $dailyPlan->load(['tasks', 'user']);
+        $dailyPlan->load(['tasks', 'user', 'workSessions']);
 
         return ApiResponse::success(DailyPlanResource::make($dailyPlan));
     }

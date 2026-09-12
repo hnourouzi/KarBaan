@@ -103,7 +103,7 @@
                 <form
                     method="POST"
                     action="{{ old('employee_id') ? route('employees.destroy', (int) old('employee_id')) : url('/employees/0') }}"
-                    class="mt-6 border-t border-slate-100 pt-5"
+                    class="mt-4 border-t border-slate-100 pt-4"
                     x-ref="destroyForm"
                     x-show="canDelete"
                     x-cloak

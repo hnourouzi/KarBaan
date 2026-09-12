@@ -18,23 +18,19 @@
                         <x-checklist-item :task="$task" />
                     @endforeach
                 </div>
+                @can('assignTask', $plan)
+                    <form method="POST" action="{{ route('daily-plans.manager-tasks.store', $plan) }}" class="mt-5 space-y-3 border-t border-slate-100 pt-5">
+                        @csrf
+                        <p class="text-sm font-semibold text-slate-900">افزودن وظیفه</p>
+                        <x-input name="title" label="عنوان" required />
+                        <x-input name="note" label="یادداشت (اختیاری)" />
+                        <x-button size="sm">افزودن وظیفه</x-button>
+                    </form>
+                @endcan
             </x-card>
         </div>
         <x-card title="ساعات کار">
-            <dl class="space-y-4 text-sm">
-                <div class="flex justify-between rounded-lg bg-slate-50 px-3 py-2.5">
-                    <dt class="text-slate-500">شروع</dt>
-                    <dd class="font-semibold text-slate-900"><x-jalali-date :date="$plan->started_at" format="time" /></dd>
-                </div>
-                <div class="flex justify-between rounded-lg bg-slate-50 px-3 py-2.5">
-                    <dt class="text-slate-500">پایان</dt>
-                    <dd class="font-semibold text-slate-900"><x-jalali-date :date="$plan->closed_at" format="time" /></dd>
-                </div>
-                <div class="flex justify-between rounded-lg bg-slate-50 px-3 py-2.5">
-                    <dt class="text-slate-500">ساعت کارکرد</dt>
-                    <dd class="font-semibold text-slate-900">{{ $plan->hours_worked ?? '—' }}</dd>
-                </div>
-            </dl>
+            <x-work-session-list :plan="$plan" class="text-sm" />
         </x-card>
     </div>
 </x-layouts.app>

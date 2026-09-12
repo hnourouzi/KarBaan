@@ -22,6 +22,8 @@ class PlanTaskResource extends JsonResource
             'status' => $this->status->value,
             'status_label' => $this->status->label(),
             'is_extra' => $this->is_extra,
+            'assigned_by_manager' => $this->isAssignedByManager(),
+            'assigned_note' => $this->assigned_note,
             'not_done_reason' => $this->not_done_reason?->value,
             'not_done_reason_label' => $this->not_done_reason?->label(),
             'not_done_note' => $this->not_done_note,

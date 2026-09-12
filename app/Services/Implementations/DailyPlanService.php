@@ -52,7 +52,7 @@ class DailyPlanService implements DailyPlanServiceInterface
                 ]);
             }
 
-            return $plan->load(['tasks', 'user']);
+            return $plan->load(['tasks', 'user', 'workSessions']);
         });
     }
 
@@ -80,7 +80,7 @@ class DailyPlanService implements DailyPlanServiceInterface
                 'notes' => $data->notes ?? $locked->notes,
             ])->save();
 
-            return $locked->refresh()->load(['tasks', 'user']);
+            return $locked->refresh()->load(['tasks', 'user', 'workSessions']);
         });
     }
 
@@ -94,14 +94,14 @@ class DailyPlanService implements DailyPlanServiceInterface
         return DailyPlan::query()
             ->whereBelongsTo($user)
             ->forDate($date)
-            ->with(['tasks', 'user'])
+            ->with(['tasks', 'user', 'workSessions'])
             ->first();
     }
 
     public function listFor(User $actor, ?int $userId = null): Collection
     {
         $query = DailyPlan::query()
-            ->with(['user', 'tasks'])
+            ->with(['user', 'tasks', 'workSessions'])
             ->orderByDesc('plan_date')
             ->orderByDesc('id');
 

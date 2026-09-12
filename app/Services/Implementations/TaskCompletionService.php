@@ -4,6 +4,7 @@ namespace App\Services\Implementations;
 
 use App\DTOs\DailyPlan\CloseDailyPlanData;
 use App\DTOs\PlanTask\CreatePlanTaskData;
+use App\DTOs\PlanTask\ManagerTaskData;
 use App\DTOs\PlanTask\UpdatePlanTaskData;
 use App\DTOs\PlanTask\UpdateTaskStatusData;
 use App\Enums\NotDoneReason;
@@ -11,6 +12,7 @@ use App\Enums\TaskStatus;
 use App\Exceptions\CannotModifyClosedPlanException;
 use App\Models\DailyPlan;
 use App\Models\PlanTask;
+use App\Models\User;
 use App\Services\Contracts\TaskCompletionServiceInterface;
 use Illuminate\Validation\ValidationException;
 
@@ -26,6 +28,22 @@ class TaskCompletionService implements TaskCompletionServiceInterface
             'title' => $data->title,
             'status' => $status,
             'is_extra' => $data->isExtra,
+            'assigned_by' => null,
+            'assigned_note' => null,
+            'position' => $this->nextPosition($plan),
+        ]);
+    }
+
+    public function addManagerTask(DailyPlan $plan, ManagerTaskData $data, User $manager): PlanTask
+    {
+        $this->ensurePlanIsOpen($plan);
+
+        return $plan->tasks()->create([
+            'title' => $data->title,
+            'status' => TaskStatus::Planned,
+            'is_extra' => false,
+            'assigned_by' => $manager->id,
+            'assigned_note' => $data->note,
             'position' => $this->nextPosition($plan),
         ]);
     }

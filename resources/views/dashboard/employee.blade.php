@@ -27,6 +27,8 @@
             </x-ui.empty-state>
         </x-card>
     @else
+        <x-manager-task-banner :plan="$plan" />
+
         <div class="grid gap-6 lg:grid-cols-3">
             <div class="space-y-3 lg:col-span-2">
                 <x-card title="چک‌لیست وظایف">
@@ -42,32 +44,17 @@
 
             <div class="space-y-6">
                 <x-card title="ساعات کار">
-                    <dl class="space-y-4 text-sm">
-                        <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2.5">
-                            <dt class="flex items-center gap-2 font-medium text-slate-500">
-                                <x-ui.icon name="clock" class="h-4 w-4" /> شروع
-                            </dt>
-                            <dd class="font-semibold text-slate-900"><x-jalali-date :date="$plan->started_at" format="time" /></dd>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2.5">
-                            <dt class="font-medium text-slate-500">پایان</dt>
-                            <dd class="font-semibold text-slate-900"><x-jalali-date :date="$plan->closed_at" format="time" /></dd>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2.5">
-                            <dt class="font-medium text-slate-500">ساعت کارکرد</dt>
-                            <dd class="font-semibold text-slate-900">{{ $plan->hours_worked ?? '—' }}</dd>
-                        </div>
-                        <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2.5">
-                            <dt class="font-medium text-slate-500">وضعیت</dt>
-                            <dd>
-                                @if ($plan->isClosed())
-                                    <span class="kb-badge kb-badge-success">{{ $plan->status->label() }}</span>
-                                @else
-                                    <span class="kb-badge kb-badge-warning">{{ $plan->status->label() }}</span>
-                                @endif
-                            </dd>
-                        </div>
-                    </dl>
+                    <x-work-session-list :plan="$plan" class="text-sm" />
+                    <div class="mt-4 flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2.5 text-sm">
+                        <dt class="font-medium text-slate-500">وضعیت روز</dt>
+                        <dd>
+                            @if ($plan->isClosed())
+                                <span class="kb-badge kb-badge-success">{{ $plan->status->label() }}</span>
+                            @else
+                                <span class="kb-badge kb-badge-warning">{{ $plan->status->label() }}</span>
+                            @endif
+                        </dd>
+                    </div>
                 </x-card>
 
                 @if ($plan->isOpen())

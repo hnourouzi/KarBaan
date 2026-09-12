@@ -29,6 +29,7 @@ class DailyPlanResource extends JsonResource
             'notes' => $this->notes,
             'user' => UserResource::make($this->whenLoaded('user')),
             'tasks' => PlanTaskResource::collection($this->whenLoaded('tasks')),
+            'work_sessions' => WorkSessionResource::collection($this->whenLoaded('workSessions')),
         ];
     }
 }

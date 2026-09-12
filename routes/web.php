@@ -8,9 +8,11 @@ use App\Http\Controllers\Web\DayReportController;
 use App\Http\Controllers\Web\EmployeeController;
 use App\Http\Controllers\Web\HistoryController;
 use App\Http\Controllers\Web\ManagerEmployeeReportController;
+use App\Http\Controllers\Web\ManagerPlanTaskController;
 use App\Http\Controllers\Web\PeriodicReportExportController;
 use App\Http\Controllers\Web\PlanTaskController;
 use App\Http\Controllers\Web\ReportController;
+use App\Http\Controllers\Web\WorkSessionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -34,6 +36,9 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/daily-plans/{dailyPlan}/close', [DailyPlanController::class, 'closeForm'])->name('daily-plans.close');
     Route::post('/daily-plans/{dailyPlan}/close', [DailyPlanController::class, 'close'])->name('daily-plans.close.store');
     Route::post('/daily-plans/{dailyPlan}/tasks', [PlanTaskController::class, 'store'])->name('daily-plans.tasks.store');
+    Route::post('/daily-plans/{dailyPlan}/manager-tasks', [ManagerPlanTaskController::class, 'store'])->name('daily-plans.manager-tasks.store');
+    Route::post('/daily-plans/{dailyPlan}/work-sessions', [WorkSessionController::class, 'store'])->name('daily-plans.work-sessions.store');
+    Route::post('/work-sessions/{workSession}/end', [WorkSessionController::class, 'end'])->name('work-sessions.end');
     Route::patch('/plan-tasks/{planTask}/status', [PlanTaskController::class, 'updateStatus'])->name('plan-tasks.status');
     Route::get('/history', HistoryController::class)->name('history.index');
     Route::get('/reports/days/{dailyPlan}', DayReportController::class)->name('reports.days.show');

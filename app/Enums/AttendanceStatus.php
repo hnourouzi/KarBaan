@@ -6,13 +6,15 @@ enum AttendanceStatus: string
 {
     case NotStarted = 'not_started';
     case Started = 'started';
+    case OnBreak = 'on_break';
     case Finished = 'finished';
 
     public function label(): string
     {
         return match ($this) {
-            self::NotStarted => 'هنوز شروع نکرده',
-            self::Started => 'شروع شده',
+            self::NotStarted => 'شروع نشده',
+            self::Started => 'در حال کار',
+            self::OnBreak => 'بین دو شیفت',
             self::Finished => 'پایان یافته',
         };
     }

@@ -34,6 +34,9 @@ class DayDetailResource extends JsonResource
             'started_at' => $jalali->time($detail->startedAt),
             'closed_at' => $jalali->time($detail->closedAt),
             'hours_worked' => $detail->hoursWorked,
+            'sessions' => WorkSessionResource::collection($detail->sessions)->resolve(),
+            'can_assign_task' => $detail->canAssignTask,
+            'assign_task_url' => route('daily-plans.manager-tasks.store', $detail->planId),
             'tasks' => PlanTaskResource::collection($detail->tasks)->resolve(),
         ];
     }

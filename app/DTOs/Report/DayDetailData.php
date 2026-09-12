@@ -4,6 +4,7 @@ namespace App\DTOs\Report;
 
 use App\Enums\DailyPlanStatus;
 use App\Models\PlanTask;
+use App\Models\WorkSession;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -11,6 +12,7 @@ readonly class DayDetailData
 {
     /**
      * @param  Collection<int, PlanTask>  $tasks
+     * @param  Collection<int, WorkSession>  $sessions
      */
     public function __construct(
         public int $planId,
@@ -22,5 +24,7 @@ readonly class DayDetailData
         public ?Carbon $closedAt,
         public ?float $hoursWorked,
         public Collection $tasks,
+        public Collection $sessions,
+        public bool $canAssignTask = false,
     ) {}
 }

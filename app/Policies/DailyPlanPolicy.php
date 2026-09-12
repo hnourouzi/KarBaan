@@ -32,6 +32,13 @@ class DailyPlanPolicy
         return $user->id === $dailyPlan->user_id && $dailyPlan->isOpen();
     }
 
+    public function assignTask(User $user, DailyPlan $dailyPlan): bool
+    {
+        return $user->canManageTeam()
+            && $user->id !== $dailyPlan->user_id
+            && $dailyPlan->isOpen();
+    }
+
     public function delete(User $user, DailyPlan $dailyPlan): bool
     {
         return $user->isAdmin();

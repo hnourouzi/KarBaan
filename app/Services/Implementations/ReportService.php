@@ -78,9 +78,13 @@ class ReportService implements ReportServiceInterface
         );
     }
 
-    public function dayDetail(DailyPlan $plan): DayDetailData
+    public function dayDetail(DailyPlan $plan, ?User $actor = null): DayDetailData
     {
-        $plan->loadMissing(['user', 'tasks']);
+        $plan->loadMissing(['user', 'tasks.assignedBy', 'workSessions']);
+
+        $hoursWorked = $plan->hours_worked !== null
+            ? (float) $plan->hours_worked
+            : null;
 
         return new DayDetailData(
             planId: $plan->id,
@@ -90,8 +94,10 @@ class ReportService implements ReportServiceInterface
             status: $plan->status,
             startedAt: $plan->started_at,
             closedAt: $plan->closed_at,
-            hoursWorked: $plan->hours_worked !== null ? (float) $plan->hours_worked : null,
+            hoursWorked: $hoursWorked,
             tasks: $plan->tasks,
+            sessions: $plan->workSessions,
+            canAssignTask: $actor?->can('assignTask', $plan) ?? false,
         );
     }
 
@@ -108,7 +114,7 @@ class ReportService implements ReportServiceInterface
             ->get();
 
         $plans = DailyPlan::query()
-            ->with('tasks')
+            ->with(['tasks', 'workSessions'])
             ->forDate($dateString)
             ->whereIn('user_id', $employees->pluck('id'))
             ->get()
@@ -125,7 +131,7 @@ class ReportService implements ReportServiceInterface
     private function plansInRange(ReportQueryData $query): Collection
     {
         return DailyPlan::query()
-            ->with(['user', 'tasks'])
+            ->with(['user', 'tasks', 'workSessions'])
             ->whereDate('plan_date', '>=', $query->from)
             ->whereDate('plan_date', '<=', $query->to)
             ->when($query->userId !== null, fn ($builder) => $builder->where('user_id', $query->userId))
@@ -199,13 +205,47 @@ class ReportService implements ReportServiceInterface
         return new TodayAttendanceDTO(
             userId: $employee->id,
             userName: $employee->name,
-            status: $plan->isClosed() ? AttendanceStatus::Finished : AttendanceStatus::Started,
+            status: $this->attendanceStatusFor($plan),
             startedAt: $plan->started_at,
-            closedAt: $plan->closed_at,
+            closedAt: $this->attendanceClosedAt($plan),
             plannedCount: $counts['planned'],
             doneCount: $counts['done'],
             dailyPlanId: $plan->id,
         );
+    }
+
+    private function attendanceStatusFor(DailyPlan $plan): AttendanceStatus
+    {
+        if ($plan->isClosed()) {
+            return AttendanceStatus::Finished;
+        }
+
+        if ($plan->openWorkSession() !== null) {
+            return AttendanceStatus::Started;
+        }
+
+        if ($plan->hasClosedWorkSession()) {
+            return AttendanceStatus::OnBreak;
+        }
+
+        return AttendanceStatus::Started;
+    }
+
+    private function attendanceClosedAt(DailyPlan $plan): ?Carbon
+    {
+        if ($plan->isClosed()) {
+            return $plan->closed_at;
+        }
+
+        if ($plan->openWorkSession() !== null) {
+            return null;
+        }
+
+        return $plan->workSessions
+            ->filter(fn ($session) => $session->ended_at !== null)
+            ->sortBy(fn ($session) => [$session->ended_at->timestamp, $session->id])
+            ->last()
+            ?->ended_at;
     }
 
     private function rowForDay(Carbon $date, ?DailyPlan $plan): DailyHistoryRow

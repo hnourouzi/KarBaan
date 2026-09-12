@@ -44,4 +44,18 @@ class DailyPlanFactory extends Factory
             ];
         });
     }
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (DailyPlan $plan) {
+            if ($plan->workSessions()->exists()) {
+                return;
+            }
+
+            $plan->workSessions()->create([
+                'started_at' => $plan->started_at,
+                'ended_at' => $plan->isClosed() ? $plan->closed_at : null,
+            ]);
+        });
+    }
 }

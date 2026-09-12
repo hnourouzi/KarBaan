@@ -47,5 +47,23 @@ class DailyPlanPolicyTest extends TestCase
 
         $this->assertTrue($manager->can('view', $plan));
         $this->assertFalse($manager->can('close', $plan));
+        $this->assertTrue($manager->can('assignTask', $plan));
+    }
+
+    public function test_manager_cannot_assign_a_task_to_a_closed_plan(): void
+    {
+        $manager = User::factory()->manager()->create();
+        $employee = User::factory()->employee()->create();
+        $plan = DailyPlan::factory()->closed()->create(['user_id' => $employee->id]);
+
+        $this->assertFalse($manager->can('assignTask', $plan));
+    }
+
+    public function test_employee_cannot_assign_a_manager_task(): void
+    {
+        $owner = User::factory()->employee()->create();
+        $plan = DailyPlan::factory()->create(['user_id' => $owner->id]);
+
+        $this->assertFalse($owner->can('assignTask', $plan));
     }
 }

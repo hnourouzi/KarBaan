@@ -4,24 +4,37 @@ namespace App\Services\Implementations;
 
 use App\Models\DailyPlan;
 use App\Services\Contracts\AttendanceServiceInterface;
+use App\Services\Contracts\WorkSessionServiceInterface;
 use Illuminate\Support\Carbon;
 
 class AttendanceService implements AttendanceServiceInterface
 {
+    public function __construct(private WorkSessionServiceInterface $sessions) {}
+
     public function start(DailyPlan $plan, Carbon $at): DailyPlan
     {
         $plan->forceFill([
             'started_at' => $at,
         ])->save();
 
-        return $plan;
+        if ($plan->workSessions()->doesntExist()) {
+            $this->sessions->start($plan->refresh(), $at);
+        }
+
+        return $plan->refresh();
     }
 
     public function finish(DailyPlan $plan, Carbon $at): DailyPlan
     {
+        $plan->loadMissing('workSessions');
+
+        $this->sessions->endOpenSession($plan, $at);
+
+        $plan->refresh()->load('workSessions');
+
         $plan->forceFill([
             'closed_at' => $at,
-            'hours_worked' => $this->hoursBetween($plan->started_at, $at),
+            'hours_worked' => $this->sessions->confirmedHours($plan),
         ])->save();
 
         return $plan->refresh();
@@ -29,17 +42,8 @@ class AttendanceService implements AttendanceServiceInterface
 
     public function computeHours(DailyPlan $plan): float
     {
-        if ($plan->closed_at === null) {
-            return $this->hoursBetween($plan->started_at, now());
-        }
+        $plan->loadMissing('workSessions');
 
-        return $this->hoursBetween($plan->started_at, $plan->closed_at);
-    }
-
-    private function hoursBetween(Carbon $from, Carbon $to): float
-    {
-        $minutes = abs($from->diffInMinutes($to));
-
-        return round($minutes / 60, 2);
+        return $this->sessions->confirmedHours($plan);
     }
 }

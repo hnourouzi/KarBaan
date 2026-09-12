@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'daily_plan_id',
+    'assigned_by',
+    'assigned_note',
     'title',
     'status',
     'is_extra',
@@ -42,6 +44,19 @@ class PlanTask extends Model
     public function dailyPlan(): BelongsTo
     {
         return $this->belongsTo(DailyPlan::class);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function assignedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_by');
+    }
+
+    public function isAssignedByManager(): bool
+    {
+        return $this->assigned_by !== null;
     }
 
     public function isPlanned(): bool

@@ -9,7 +9,7 @@
     $remember = old('employee_form') === ($isEdit ? 'update' : 'create');
 @endphp
 
-<form method="POST" action="{{ $action }}" class="space-y-4" {{ $attributes }}>
+<form method="POST" action="{{ $action }}" class="flex flex-col gap-3" {{ $attributes }}>
     @csrf
     @if ($isEdit)
         @method('PUT')
@@ -19,23 +19,27 @@
         <input type="hidden" name="employee_form" value="create">
     @endif
 
-    <x-input :id="$prefix.'-name'" name="name" label="نام" :remember="$remember" x-ref="{{ $isEdit ? 'editName' : 'createName' }}" required />
-    <x-input :id="$prefix.'-email'" name="email" type="email" label="ایمیل" :remember="$remember" required />
-    <x-input
-        :id="$prefix.'-password'"
-        name="password"
-        type="password"
-        :label="$isEdit ? 'رمز عبور جدید (اختیاری)' : 'رمز عبور'"
-        autocomplete="new-password"
-        :remember="$remember"
-        @required(! $isEdit)
-    />
-    <x-input :id="$prefix.'-job-title'" name="job_title" label="سمت" :remember="$remember" />
-    <x-select :id="$prefix.'-role'" name="role" label="نقش" :remember="$remember" required>
-        @foreach (\App\Enums\UserRole::cases() as $role)
-            <option value="{{ $role->value }}" @selected($remember && old('role') === $role->value)>{{ $role->label() }}</option>
-        @endforeach
-    </x-select>
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <x-input :id="$prefix.'-name'" name="name" label="نام" :remember="$remember" x-ref="{{ $isEdit ? 'editName' : 'createName' }}" required />
+        <x-input :id="$prefix.'-email'" name="email" type="email" label="ایمیل" :remember="$remember" required />
+        <div class="sm:col-span-2">
+            <x-input
+                :id="$prefix.'-password'"
+                name="password"
+                type="password"
+                :label="$isEdit ? 'رمز عبور جدید (اختیاری)' : 'رمز عبور'"
+                autocomplete="new-password"
+                :remember="$remember"
+                @required(! $isEdit)
+            />
+        </div>
+        <x-input :id="$prefix.'-job-title'" name="job_title" label="سمت" :remember="$remember" />
+        <x-select :id="$prefix.'-role'" name="role" label="نقش" :remember="$remember" required>
+            @foreach (\App\Enums\UserRole::cases() as $role)
+                <option value="{{ $role->value }}" @selected($remember && old('role') === $role->value)>{{ $role->label() }}</option>
+            @endforeach
+        </x-select>
+    </div>
     <label for="{{ $prefix }}-is-active" class="flex items-center gap-2 text-sm text-slate-600">
         <input type="hidden" name="is_active" value="0">
         <input
@@ -48,7 +52,7 @@
         >
         حساب فعال باشد
     </label>
-    <div class="flex flex-wrap gap-2 border-t border-slate-100 pt-5">
+    <div class="flex flex-wrap gap-2 border-t border-slate-100 pt-4">
         <x-button>{{ $isEdit ? 'ذخیره' : 'ثبت' }}</x-button>
         <x-button type="button" variant="secondary" x-on:click="{{ $isEdit ? 'closeEdit()' : 'closeCreate()' }}">انصراف</x-button>
     </div>

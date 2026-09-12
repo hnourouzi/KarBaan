@@ -22,6 +22,8 @@ The name combines *kar* (work) and *ban* (keeper/guide). It is used consistently
 - **Daily task planning** — employees open a day and create a start-of-day checklist
 - **End-of-day closing** — mark planned tasks done or not done (reason required when not done), log extra/unplanned tasks, record hours
 - **Time tracking** — start/end timestamps and computed hours per day on `daily_plans`
+- **Multiple work sessions per day** — employees can clock out and start again on the same `DailyPlan` (e.g. 09:00–16:00 then 23:00–01:00). Each interval is a `WorkSession`; confirmed hours are the sum of closed sessions. At most one session can be open at a time, with a cap of 10 sessions/day
+- **Manager-assigned tasks** — managers/admins can add a task to an employee’s **open** daily plan (from the day-detail modal or plan page). The task is tagged (`assigned_by`) and shown with a “توسط مدیر اضافه شده” badge so it is distinct from employee-planned work
 - **Employee self-history** (“سوابق من”) — date-range filtering, summary KPIs, daily table, and shared day-detail modal
 - **Manager periodic report (per employee)** — summary KPI cards, daily breakdown table, day-detail modal; team-level report at `/reports`
 - **Today's Attendance** (manager/admin dashboard) — real-time view of who has started, is still working, or finished today, with start/end times and task progress; row click opens day-detail modal
@@ -65,7 +67,8 @@ Conventions:
 ### Design decisions
 
 - There is no separate `employees` table; `User` is the employee, with a role on the same model.
-- Attendance lives on `daily_plans` (`started_at`, `closed_at`, `hours_worked`) so one working day has a single source of truth.
+- Attendance lives on `daily_plans` (`started_at`, `closed_at`, `hours_worked`) so one working day has a single source of truth. Individual clock-in/out intervals live on `work_sessions`; `hours_worked` is the sum of **closed** sessions. `closed_at` still means the employee explicitly closed the day, not merely ended a session.
+- Manager-assigned tasks are restricted to **open** plans. A closed day has already been checked out; adding work there would leave the employee unable to mark it done without reopening the day.
 - Jalali conversion for filter inputs happens in Form Requests (`prepareForValidation`); services always receive Gregorian `Carbon` dates.
 
 ### Possible later extensions
@@ -144,6 +147,9 @@ Other routes:
 - `GET /api/v1/daily-plans/{id}`
 - `POST /api/v1/daily-plans/{id}/close`
 - `POST /api/v1/daily-plans/{id}/tasks`
+- `POST /api/v1/daily-plans/{id}/manager-tasks`
+- `POST /api/v1/work-sessions/start`
+- `POST /api/v1/work-sessions/{id}/end`
 - `PATCH /api/v1/plan-tasks/{id}`
 - `PATCH /api/v1/plan-tasks/{id}/status`
 - `GET /api/v1/reports?period=weekly&user_id=`

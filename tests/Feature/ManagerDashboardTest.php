@@ -46,9 +46,9 @@ class ManagerDashboardTest extends TestCase
             ->assertSee('علی شروع‌شده')
             ->assertSee('سارا پایان‌یافته')
             ->assertSee('رضا بدون برنامه')
-            ->assertSee('شروع شده')
+            ->assertSee('در حال کار')
             ->assertSee('پایان یافته')
-            ->assertSee('هنوز شروع نکرده')
+            ->assertSee('شروع نشده')
             ->assertSee('data-open-day="'.$openPlan->id.'"', false)
             ->assertSee('data-open-day="'.$closedPlan->id.'"', false)
             ->assertDontSee('data-open-day=""', false);

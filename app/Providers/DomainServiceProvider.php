@@ -8,12 +8,14 @@ use App\Services\Contracts\DailyPlanServiceInterface;
 use App\Services\Contracts\EmployeeServiceInterface;
 use App\Services\Contracts\ReportServiceInterface;
 use App\Services\Contracts\TaskCompletionServiceInterface;
+use App\Services\Contracts\WorkSessionServiceInterface;
 use App\Services\Implementations\AttendanceService;
 use App\Services\Implementations\AuthService;
 use App\Services\Implementations\DailyPlanService;
 use App\Services\Implementations\EmployeeService;
 use App\Services\Implementations\ReportService;
 use App\Services\Implementations\TaskCompletionService;
+use App\Services\Implementations\WorkSessionService;
 use Illuminate\Support\ServiceProvider;
 
 class DomainServiceProvider extends ServiceProvider
@@ -25,6 +27,7 @@ class DomainServiceProvider extends ServiceProvider
         $this->app->bind(DailyPlanServiceInterface::class, DailyPlanService::class);
         $this->app->bind(TaskCompletionServiceInterface::class, TaskCompletionService::class);
         $this->app->bind(AttendanceServiceInterface::class, AttendanceService::class);
+        $this->app->bind(WorkSessionServiceInterface::class, WorkSessionService::class);
         $this->app->bind(ReportServiceInterface::class, ReportService::class);
     }
 }

@@ -17,6 +17,9 @@
         <div class="flex flex-wrap items-center gap-2">
             <p class="text-sm font-medium text-slate-900">{{ $task->title }}</p>
             <x-badge :status="$task->status" />
+            @if ($task->isAssignedByManager())
+                <span class="kb-badge kb-badge-info">توسط مدیر اضافه شده</span>
+            @endif
             @if ($task->is_extra)
                 <span class="text-xs font-medium text-slate-500">اضافه</span>
             @endif

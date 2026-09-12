@@ -13,8 +13,8 @@
 >
     <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" x-on:click="{{ $close }}"></div>
     <div class="relative flex h-full items-center justify-center p-4">
-        <div class="max-h-[90vh] w-full {{ $maxWidth }} overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xl" x-on:click.stop>
-            <div class="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+        <div class="flex max-h-[90vh] w-full {{ $maxWidth }} flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xl" x-on:click.stop>
+            <div class="flex shrink-0 items-start justify-between gap-4 border-b border-slate-100 px-6 py-4">
                 <div>
                     <h2 class="text-lg font-semibold text-slate-900">
                         @isset($heading)
@@ -31,7 +31,7 @@
                     <x-ui.icon name="x-mark" class="h-5 w-5" />
                 </button>
             </div>
-            <div class="overflow-y-auto px-6 py-5">
+            <div class="min-h-0 flex-1 overflow-y-auto px-6 py-4">
                 {{ $slot }}
             </div>
         </div>

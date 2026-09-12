@@ -16,6 +16,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Work Sessions
+    |--------------------------------------------------------------------------
+    |
+    | An employee may clock in more than once on the same daily plan. A hard
+    | cap prevents accidental loops (forgotten clock-outs / repeated starts).
+    |
+    */
+
+    'max_work_sessions_per_day' => 10,
+
+    /*
+    |--------------------------------------------------------------------------
     | PDF Export Driver
     |--------------------------------------------------------------------------
     |

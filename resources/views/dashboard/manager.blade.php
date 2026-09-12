@@ -41,6 +41,8 @@
                             <td>
                                 @if ($row->closedAt)
                                     <x-jalali-date :date="$row->closedAt" format="time" />
+                                @elseif ($row->status === \App\Enums\AttendanceStatus::Started)
+                                    <span class="text-slate-400">در حال کار</span>
                                 @elseif ($row->dailyPlanId)
                                     <span class="text-slate-400">هنوز ثبت نشده</span>
                                 @else

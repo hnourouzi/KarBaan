@@ -35,7 +35,7 @@ class DailyPlanController extends Controller
     {
         $this->authorize('view', $dailyPlan);
 
-        $dailyPlan->load(['tasks', 'user']);
+        $dailyPlan->load(['tasks', 'user', 'workSessions']);
 
         return view('daily-plans.show', [
             'plan' => $dailyPlan,
@@ -46,7 +46,7 @@ class DailyPlanController extends Controller
     {
         $this->authorize('close', $dailyPlan);
 
-        $dailyPlan->load(['tasks', 'user']);
+        $dailyPlan->load(['tasks', 'user', 'workSessions']);
 
         return view('daily-plans.close', [
             'plan' => $dailyPlan,
